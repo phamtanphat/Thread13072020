@@ -14,33 +14,25 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        final Thread threadA = new Thread(new Runnable() {
+        Thread threadA = new Thread(new Runnable() {
             @Override
             public void run() {
-                for (int i = 0; i <= 10 ; i++) {
-                    Log.d("BBB","A : " + i);
-                }
+                xuly("A");
             }
         });
-        final Thread threadB = new Thread(new Runnable() {
+        Thread threadB = new Thread(new Runnable() {
             @Override
             public void run() {
-                for (int i = 0; i <= 10 ; i++) {
-                    Log.d("BBB","B : " + i);
-                }
+                xuly("B");
             }
         });
 
         threadA.start();
         threadB.start();
-
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                Log.d("BBB",threadA.getState().toString());
-                Log.d("BBB",threadB.getState().toString());
-            }
-        },1000);
-
+    }
+    private synchronized void xuly(String tag){
+        for (int i = 0; i <= 1000 ; i++) {
+            Log.d("BBB",tag + " : " + i);
+        }
     }
 }
