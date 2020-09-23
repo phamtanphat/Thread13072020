@@ -1,90 +1,63 @@
 package com.example.thread13072020;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
 import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
-    int a , b ,c;
-    MyFlag myFlag;
+    int a, b, c;
+    MyHandler myHandler;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         a = b = c = 0;
-        myFlag = new MyFlag();
-        myFlag.position = 1;
+
+        myHandler = new MyHandler();
+
 
         Thread threadA = new Thread(new Runnable() {
             @Override
             public void run() {
-                synchronized (myFlag){
-                    for (int i = 1 ; i <= 1000 ; ) {
-                        if (myFlag.position == 1){
-                            a = i;
-                            Log.d("BBB","A : " + a);
-                            myFlag.position = 2;
-                            myFlag.notifyAll();
-                            i++;
-                        }else{
-                            try {
-                                myFlag.wait();
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }
-                }
+                a = 1;
+                Message message = new Message();
+                Bundle bundle = new Bundle();
+                bundle.putInt("A",a);
+                message.setData(bundle);
+                message.what = 1;
+                myHandler.sendMessage(message);
             }
         });
         Thread threadB = new Thread(new Runnable() {
             @Override
             public void run() {
-                synchronized (myFlag){
-                    for (int i = 1 ; i <= 1000 ;) {
-                        if (myFlag.position == 2){
-                            b = i;
-                            Log.d("BBB","B : " + b);
-                            myFlag.position = 3;
-                            myFlag.notifyAll();
-                            i++;
-                        }else{
-                            try {
-                                myFlag.wait();
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }
-                }
-
+                b = 2;
+                Message message = new Message();
+                Bundle bundle = new Bundle();
+                bundle.putInt("B",a);
+                message.setData(bundle);
+                message.what = 2;
+                myHandler.sendMessage(message);
             }
         });
 
         Thread threadC = new Thread(new Runnable() {
             @Override
             public void run() {
-                synchronized (myFlag){
-                    for (int i = 1 ; i <= 1000 ;) {
-                        if (myFlag.position == 3){
-                            c = a + b;
-                            Log.d("BBB","C : " + c);
-                            myFlag.position = 1;
-                            myFlag.notifyAll();
-                            i++;
-                        }else{
-                            try {
-                                myFlag.wait();
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }
-                }
+                c = a + b;
+                Message message = new Message();
+                Bundle bundle = new Bundle();
+                bundle.putInt("C",c);
+                message.setData(bundle);
+                message.what = 3;
+                myHandler.sendMessage(message);
             }
         });
 
@@ -93,6 +66,25 @@ public class MainActivity extends AppCompatActivity {
         threadC.start();
 
 
+    }
+
+    class MyHandler extends Handler {
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what){
+                case 1 :
+                    Toast.makeText(MainActivity.this, msg.getData().getInt("A") + "", Toast.LENGTH_SHORT).show();
+                    break;
+                case 2 :
+                    Toast.makeText(MainActivity.this, msg.getData().getInt("B") + "", Toast.LENGTH_SHORT).show();
+                    break;
+                case 3 :
+                    Toast.makeText(MainActivity.this, msg.getData().getInt("C") + "", Toast.LENGTH_SHORT).show();
+                    break;
+            }
+
+        }
     }
 
 }
